@@ -1,0 +1,222 @@
+/* Reset generale */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Stile della barra di navigazione */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+}
+
+.navbar-left h1 {
+    color: #fff;
+    font-size: 1.5em;
+    margin-left: 10px;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    width: 50px;
+    height: 50px;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+
+
+
+/* Stile per i pulsanti della navbar simile a testo cliccabile */
+.nav-button {
+    padding: 0 15px; /* Spaziatura orizzontale tra i link */
+    color: #ffffff; /* Colore del testo */
+    text-decoration: none; /* Rimuove la sottolineatura */
+    font-size: 1rem; /* Dimensione del testo */
+    transition: color 0.3s; /* Effetto al passaggio del mouse */
+}
+
+/* Spaziatura tra i link */
+.navbar-left {
+    display: flex;
+    gap: 20px; /* Distanza tra i link */
+    align-items: center;
+}
+
+/* Hover per evidenziare solo il testo */
+.nav-button:hover {
+    color: #cce7ff; /* Colore più chiaro al passaggio del mouse */
+}
+/* Stile per il cerchio del profilo */
+.profile-circle {
+    position: relative;
+}
+
+.profile-circle-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #333;
+    cursor: pointer;
+}
+
+/* Menu a comparsa per login/registrazione */
+.login-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 60px;
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    z-index: 1;
+}
+
+.login-menu a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #333;
+}
+
+.login-menu a:hover {
+    background-color: #f0f0f0;
+}
+
+/* Mostra il menu a comparsa quando cliccato */
+.show {
+    display: block;
+}
+
+/* Stili generali del contenitore */
+body {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    width: 80%;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+h1, h2 {
+    text-align: center;
+    color: #444;
+    margin-bottom: 20px;
+}
+
+/* Stile del form */
+.form-style {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.form-style label {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.form-style input, .form-style select, .form-style textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-style button {
+    padding: 10px;
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.form-style button:hover {
+    background-color: #4cae4c;
+}
+
+/* Stili del bottone di download */
+.download-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 16px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.download-button:hover {
+    background-color: #0056b3;
+}
+
+/* Stile della tabella */
+.table-container {
+    margin-top: 30px;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #ddd;
+}
+
+/* Stile per il campo firma */
+.firma-field {
+    background-color: #f4f4f4; /* Colore di sfondo leggermente opacizzato */
+    color: #888; /* Colore del testo opaco */
+    border: none; /* Rimuovi i bordi */
+    cursor: not-allowed; /* Mostra il cursore di "non modificabile" */
+    pointer-events: none; /* Disabilita qualsiasi interazione */
+}
+
+@media (max-width: 600px) {
+    .container {
+        width: 95%;
+    }
+}

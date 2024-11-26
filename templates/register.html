@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrazione</title>
+    <link rel="stylesheet" href="../static/styles_registration.css">
+</head>
+<body>
+    <div class="container">
+        <img src="../static/logo.webp" alt="Logo">
+        <h1>Registrati</h1>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div>
+                <label for="username">Username</label>
+                {{ form.username(size=20) }}
+            </div>
+            <div>
+                <label for="email">Email</label>
+                {{ form.email(size=20) }}
+            </div>
+            <div>
+                <label for="password">Password</label>
+                {{ form.password(size=20) }}
+            </div>
+            <div>
+                <label for="confirm_password">Conferma Password</label>
+                {{ form.confirm_password(size=20) }}
+            </div>
+            <div>
+                {{ form.submit() }}
+            </div>
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles_view.css') }}">
+    <title>Visualizza Giocatori</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="{{ url_for('static', filename='logo.webp') }}" alt="Logo" class="logo">
+            <a href="{{ url_for('index') }}" class="nav-button">Home</a>
+            <a href="{{ url_for('visualizza') }}" class="nav-button">Visualizza Giocatori</a>
+            <a href="https://rigoripianese.github.io/sito_web/" class="nav-button" target="_blank">Gestione Rigoristi</a>
+        </div>
+        <div class="navbar-right">
+            {% if current_user.is_authenticated %}
+            <div class="profile-circle">
+                <a href="{{ url_for('user_profile', username=current_user.username) }}">
+                    {% if current_user.profile_picture %}
+                        <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_picture) }}" alt="Foto profilo" class="profile-circle-img">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='profile_pics/nophoto.png') }}" alt="Foto profilo" class="profile-circle-img">
+                    {% endif %}
+                </a>
+            </div>
+            {% else %}
+            <div class="profile-circle" style="position: relative;">
+                <img src="{{ url_for('static', filename='profile_pics/nophoto.png') }}" alt="Foto profilo" class="profile-circle-img" onclick="toggleMenu()">
+                <div id="loginMenu" class="login-menu">
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Registrati</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+
+    <div class="container">
+        <h1>Visualizza e Filtra Giocatori</h1>
+        <div>
+            <h3>Numero di giocatori presenti nel database: {{ players_count }}</h3>
+        </div>
+         <!-- Menu per aggiungere i filtri -->
+        <label for="add-filter">Aggiungi un filtro:</label>
+        <select id="add-filter">
+            <option value="">Seleziona un filtro</option>
+            <option value="categoria">Categoria</option>
+            <option value="nazione">Nazione</option>
+            <option value="cognome">Cognome</option>
+            <option value="nome">Nome</option>
+            <option value="data_di_nascita">Data di Nascita</option>
+            <option value="anno_di_nascita">Anno di Nascita</option>
+            <option value="piede">Piede</option>
+            <option value="squadra">Squadra</option>
+            <option value="analisi">Analisi</option>
+            <option value="ruolo_1">Ruolo 1</option>
+            <option value="ruolo_2">Ruolo 2</option>
+            <option value="ruolo_3">Ruolo 3</option>
+            <option value="profilo_attaccante">Profilo Attaccante</option>
+            <option value="attitudine_tattica_1">Attitudine Tattica 1</option>
+            <option value="attitudine_tattica_2">Attitudine Tattica 2</option>
+            <option value="attitudine_tattica_po_1">Attitudine Tattica PO 1</option>
+            <option value="attitudine_tattica_po_2">Attitudine Tattica PO 2</option>
+            <option value="altezza">Altezza</option>
+            <option value="costituzione">Costituzione</option>
+            <option value="morfologia">Morfologia</option>
+            <option value="somatotipo">Somatotipo</option>
+            <option value="condizionale">Condizionale</option>
+            <option value="valutazione">Valutazione</option>
+            <option value="prospettiva">Prospettiva</option>
+            <option value="tecnica">Tecnica</option>
+            <option value="tattica_possesso">Tattica Possesso</option>
+            <option value="tattica_non_possesso">Tattica Non Possesso</option>
+            <option value="tecnica_portiere">Tecnica Portiere</option>
+            <option value="tattica_portiere">Tattica Portiere</option>
+            <option value="firma">Firma</option>
+        </select>
+
+        <form id="filter_form" method="POST" action="{{ url_for('visualizza') }}">
+            <div id="categoria" class="hidden">
+                <label for="categoria">Categoria:</label>
+                <select id="categoria" name="categoria">
+                    <option value="">Qualsiasi</option>
+                    <option value="Serie A">Serie A</option>
+                    <option value="Serie B">Serie B</option>
+                    <option value="Serie C">Serie C</option>
+                    <option value="Serie D">Serie D</option>
+                    <option value="Eccellenza">Eccellenza</option>
+                    <option value="Primavera 1">Primavera 1</option>
+                    <option value="Primavera 2">Primavera 2</option>
+                    <option value="Primavera 3">Primavera 3</option>
+                    <option value="Primavera 4">Primavera 4</option>
+                </select>
+            </div>
+            <div id="nazione" class="hidden">
+            <label for="nazione">Nazione:</label>
+            <input type="text" id="nazione" name="nazione" placeholder="Qualsiasi">
+            </div>
+
+            <div id="cognome" class="hidden">
+            <label for="cognome">Cognome:</label>
+            <input type="text" id="cognome" name="cognome" placeholder="Qualsiasi">
+            </div>
+            <div id="nome" class="hidden">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" placeholder="Qualsiasi">
+            </div>
+            <div id="data_di_nascita" class="hidden">
+            <label for="data_di_nascita">Data di Nascita:</label>
+            <input type="date" id="data_di_nascita" name="data_di_nascita">
+            </div>
+            <div id="anno_di_nascita" class="hidden">
+            <label for="anno_di_nascita">Anno Di Nascita:</label>
+            <input type="number" id="anno_di_nascita" name="anno_di_nascita" placeholder="Qualsiasi">
+            </div>
+            <div id="piede" class="hidden">
+            <label for="piede">Piede:</label>
+            <select id="piede" name="piede">
+                <option value="">Qualsiasi</option>
+                <option value="Dx">Destro</option>
+                <option value="Sx">Sinistro</option>
+            </select>
+            </div>
+            <div id="squadra" class="hidden">
+            <label for="squadra">Squadra:</label>
+            <input type="text" id="squadra" name="squadra" placeholder="Qualsiasi">
+            </div>
+            <div id="analisi" class="hidden">
+            <label for="analisi">Analisi:</label>
+            <select id="analisi" name="analisi">
+                <option value="">Qualsiasi</option>
+                <option value="APR">Anno-Piede-Ruolo</option>
+                <option value="Monitoraggio">Monitoraggio</option>
+                <option value="RelazioneGiocatore">Relazione Giocatore</option>
+            </select>
+            </div>
+            <div id="ruolo_1" class="hidden">
+            <label for="ruolo_1">Ruolo 1:</label>
+            <select id="ruolo_1" name="ruolo_1">
+                <option value="">Qualsiasi</option>
+                <option value="P">Portiere</option>
+                <option value="DIF_CEN_D/S">Difensore Centrale Destro/Sinistro</option>
+                <option value="DIF_CEN_LAT_D/S">Difensore Centrale Laterale Destro/Sinistro</option>
+                <option value="DIF_CEN">Difensore Centrale</option>
+                <option value="DIF_EST">Difensore Esterno</option>
+                <option value="DIF_LAT">Difensore Laterale</option>
+                <option value="MED">Mediano</option>
+                <option value="CEN_CEN">Centrocampista Centrale</option>
+                <option value="CEN_INT">Centrocampista Interno</option>
+                <option value="CEN_LAT">Centrocampista Laterale</option>
+                <option value="CEN_EST">Centrocampista Esterno</option>
+                <option value="TRQ_CEN">Trequartista Centrale</option>
+                <option value="TRQ_LAT">Trequartista Laterale</option>
+                <option value="ATT_TRQ_CEN">Attaccante Trequartista Centrale</option>
+                <option value="ATT_TRQ_LAT">Attaccante Trequartista Laterale</option>
+                <option value="ATT_TRQ_EST">Attaccante Trequartista Esterno</option>
+                <option value="ATT_EST">Attaccante Esterno</option>
+                <option value="ATT_LAT">Attaccante Laterale</option>
+                <option value="ATT_CEN">Attaccante Centrale</option>
+            </select>
+            </div>
+            <div id="ruolo_2" class="hidden">
+            <label for="ruolo_2">Ruolo 2:</label>
+            <select id="ruolo_2" name="ruolo_2">
+                <option value="">Qualsiasi</option>
+                <option value="P">Portiere</option>
+                <option value="DIF_CEN_D/S">Difensore Centrale Destro/Sinistro</option>
+                <option value="DIF_CEN_LAT_D/S">Difensore Centrale Laterale Destro/Sinistro</option>
+                <option value="DIF_CEN">Difensore Centrale</option>
+                <option value="DIF_EST">Difensore Esterno</option>
+                <option value="DIF_LAT">Difensore Laterale</option>
+                <option value="MED">Mediano</option>
+                <option value="CEN_CEN">Centrocampista Centrale</option>
+                <option value="CEN_INT">Centrocampista Interno</option>
+                <option value="CEN_LAT">Centrocampista Laterale</option>
+                <option value="CEN_EST">Centrocampista Esterno</option>
+                <option value="TRQ_CEN">Trequartista Centrale</option>
+                <option value="TRQ_LAT">Trequartista Laterale</option>
+                <option value="ATT_TRQ_CEN">Attaccante Trequartista Centrale</option>
+                <option value="ATT_TRQ_LAT">Attaccante Trequartista Laterale</option>
+                <option value="ATT_TRQ_EST">Attaccante Trequartista Esterno</option>
+                <option value="ATT_EST">Attaccante Esterno</option>
+                <option value="ATT_LAT">Attaccante Laterale</option>
+                <option value="ATT_CEN">Attaccante Centrale</option>
+            </select>
+            </div>
+            <div id="ruolo_3" class="hidden">
+            <label for="ruolo_3">Ruolo 3:</label>
+            <select id="ruolo_3" name="ruolo_3">
+                <option value="">Qualsiasi</option>
+                <option value="P">Portiere</option>
+                <option value="DIF_CEN_D/S">Difensore Centrale Destro/Sinistro</option>
+                <option value="DIF_CEN_LAT_D/S">Difensore Centrale Laterale Destro/Sinistro</option>
+                <option value="DIF_CEN">Difensore Centrale</option>
+                <option value="DIF_EST">Difensore Esterno</option>
+                <option value="DIF_LAT">Difensore Laterale</option>
+                <option value="MED">Mediano</option>
+                <option value="CEN_CEN">Centrocampista Centrale</option>
+                <option value="CEN_INT">Centrocampista Interno</option>
+                <option value="CEN_LAT">Centrocampista Laterale</option>
+                <option value="CEN_EST">Centrocampista Esterno</option>
+                <option value="TRQ_CEN">Trequartista Centrale</option>
+                <option value="TRQ_LAT">Trequartista Laterale</option>
+                <option value="ATT_TRQ_CEN">Attaccante Trequartista Centrale</option>
+                <option value="ATT_TRQ_LAT">Attaccante Trequartista Laterale</option>
+                <option value="ATT_TRQ_EST">Attaccante Trequartista Esterno</option>
+                <option value="ATT_EST">Attaccante Esterno</option>
+                <option value="ATT_LAT">Attaccante Laterale</option>
+                <option value="ATT_CEN">Attaccante Centrale</option>
+            </select>
+            </div>
+            <div id="profilo_attaccante" class="hidden">
+            <label for="profilo_attaccante">Profilo Attaccante:</label>
+            <select id="profilo_attaccante" name="profilo_attaccante">
+                <option value="">Qualsiasi</option>
+                <option value="Prima punta di movimento">Prima punta di movimento</option>
+                <option value="Prima punta di posizione">Prima punta di posizione</option>
+                <option value="Ala">Ala</option>
+                <option value="Seconda punta">Seconda punta</option>
+                            <option value="Mezza punta">Mezza punta</option>
+                <option value="-">Nessun profilo specificato</option>
+            </select>
+            </div>
+            <div id="attitudine_tattica_1" class="hidden">
+            <label for="attitudine_tattica_1">Attitudine Tattica 1:</label>
+            <select id="attitudine_tattica_1" name="attitudine_tattica_1">
+                <option value="">Qualsiasi</option>
+                <option value="D">Difesa</option>
+                <option value="R">Regia</option>
+                <option value="AR">Attacco di rifinitura</option>
+                <option value="AF">Attacco di finalizzazione</option>
+                <option value="-">Non specificata</option>
+            </select>
+            </div>
+            <div id="attitudine_tattica_2" class="hidden">
+            <label for="attitudine_tattica_2">Attitudine Tattica 2:</label>
+            <select id="attitudine_tattica_2" name="attitudine_tattica_2">
+                <option value="">Qualsiasi</option>
+                <option value="D">Difesa</option>
+                <option value="R">Regia</option>
+                <option value="AR">Attacco di rifinitura</option>
+                <option value="AF">Attacco di finalizzazione</option>
+                <option value="-">Non specificata</option>
+            </select>
+            </div>
+            <div id="attitudine_tattica_po_1" class="hidden">
+            <label for="attitudine_tattica_po_1">Attitudine Tattica PO 1:</label>
+            <select id="attitudine_tattica_po_1" name="attitudine_tattica_po_1">
+                <option value="">Qualsiasi</option>
+                <option value="DP">Difesa della Porta</option>
+                <option value="DS">Difesa dello Spazio</option>
+                <option value="DA">Difesa Aerea</option>
+                <option value="R">Regia</option>
+                <option value="-">Non specificata</option>
+            </select>
+            </div>
+            <div id="attitudine_tattica_po_2" class="hidden">
+            <label for="attitudine_tattica_po_2">Attitudine Tattica PO 2:</label>
+            <select id="attitudine_tattica_po_2" name="attitudine_tattica_po_2">
+                <option value="">Qualsiasi</option>
+                <option value="DP">Difesa della Porta</option>
+                <option value="DS">Difesa dello Spazio</option>
+                <option value="DA">Difesa Aerea</option>
+                <option value="R">Regia</option>
+                <option value="-">Non specificata</option>
+            </select>
+            </div>
+            <div id="altezza" class="hidden">
+            <label for="altezza">Altezza (cm):</label>
+            <select id="altezza" name="altezza">
+                <option value="">Qualsiasi</option>
+                <option value="Altezza bassissima">Sotto i 170 cm</option>
+                <option value="Altezza bassa">Tra 170 cm e 175 cm</option>
+                <option value="Altezza bassa-media">Tra 175 cm e 180 cm</option>
+                <option value="Altezza media-bassa">Tra 180 cm e 185 cm</option>
+                <option value="Altezza alta-media">Tra 185 cm e 190 cm</option>
+                <option value="Altezza altissima">Sopra i 190 cm</option>
+            </select>
+            </div>
+            <div id="costituzione" class="hidden">
+            <label for="costituzione">Costituzione:</label>
+            <select id="costituzione" name="costituzione">
+                <option value="">Qualsiasi</option>
+                <option value="Esile">Esile</option>
+                <option value="Media-Esile">Media-Esile</option>
+                <option value="Media">Media</option>
+                <option value="Media-Robusta">Media-Robusta</option>
+                <option value="Robusta">Robusta</option>
+            </select>
+            </div>
+            <div id="morfologia" class="hidden">
+            <label for="morfologia">Morfologia:</label>
+            <select id="morfologia" name="morfologia">
+                <option value="">Qualsiasi</option>
+                <option value="Brevitipo">Brevitipo</option>
+                <option value="Normotipo">Normotipo</option>
+                <option value="Longitipo">Longitipo</option>
+            </select>
+            </div>
+            <div id="somatotipo" class="hidden">
+            <label for="somatotipo">Somatotipo:</label>
+            <select id="somatotipo" name="somatotipo">
+                <option value="">Qualsiasi</option>
+                <option value="Ectomorfo">Ectomorfo</option>
+                <option value="Mesomorfo">Mesomorfo</option>
+                <option value="Endomorfo">Endomorfo</option>
+                <option value="Ecto-mesomorfo">Ecto-mesomorfo</option>
+                <option value="Meso-endomorfo">Meso-endomorfo</option>
+            </select>
+            </div>
+            <div id="condizionale" class="hidden">
+            <label for="condizionale">Condizionale:</label>
+            <select id="condizionale" name="condizionale">
+                <option value="">Qualsiasi</option>
+                <option value="Resistenza">Resistenza</option>
+                <option value="Velocità">Velocità</option>
+                <option value="Rapidità">Rapidità</option>
+                <option value="Forza esplosiva">Forza esplosiva</option>
+                <option value="Forza massimale">Forza massimale</option>
+                <option value="Forza resistente">Forza resistente</option>
+                <option value="Flessibilità">Flessibilità</option>
+                <option value="Intensità">Intensità</option>
+                <option value="Potenza">Potenza</option>
+            </select>
+            </div>
+            <div id="valutazione" class="hidden">
+            <label for="valutazione">Valutazione:</label>
+            <select id="valutazione" name="valutazione">
+                <option value="">Qualsiasi</option>
+                <option value="1 / 5">1 / 5: può fare la categoria ma non lo prenderei</option>
+                <option value="2 / 5">2 / 5: giocatore discreto per la categoria</option>
+                <option value="3 / 5">3 / 5: buon giocatore per la categoria</option>
+                <option value="4 / 5">4 / 5: ottimo giocatore da primi posti</option>
+                <option value="5 / 5">5 / 5: top per la categoria</option>
+            </select>
+            </div>
+            <div id="prospettiva" class="hidden">
+            <label for="prospettiva">Prospettiva:</label>
+            <select id="prospettiva" name="prospettiva">
+                <option value="">Qualsiasi</option>
+                <option value="↑ In crescita">In crescita</option>
+                <option value="Stabile">Stabile</option>
+                <option value="↓ In calo">In calo</option>
+            </select>
+            </div>
+            <div id="tecnica" class="hidden">
+            <label for="tecnica">Tecnica:</label>
+            <select id="tecnica" name="tecnica">
+                <option value="">Qualsiasi</option>
+                <option value="Dominio palla">Dominio palla</option>
+                <option value="Guida della palla">Guida della palla</option>
+                <option value="Calcio">Calcio</option>
+                <option value="Colpo di testa">Colpo di testa</option>
+                <option value="Postura e ricezione">Postura e ricezione</option>
+                <option value="Rimessa Laterale Lunga">Rimessa Laterale Lunga</option>
+            </select>
+            </div>
+            <div id="tattica_possesso" class="hidden">
+            <label for="tattica_possesso">Tattica Possesso:</label>
+            <select id="tattica_possesso" name="tattica_possesso">
+                <option value="">Qualsiasi</option>
+                <option value="Smarcamento incontro">Smarcamento incontro</option>
+                <option value="Smarcamento in fuori linea">Smarcamento in fuori linea</option>
+                <option value="Smarcamento in ampiezza">Smarcamento in ampiezza</option>
+                <option value="Smarcamento profondità lunga">Smarcamento profondità lunga</option>
+                <option value="Smarcamento taglio corto">Smarcamento taglio corto</option>
+                <option value="Smarcamento sovrapposizione">Smarcamento sovrapposizione</option>
+                <option value="Smarcamento a sostegno">Smarcamento a sostegno</option>
+                <option value="Smarcamento tra le linee">Smarcamento tra le linee</option>
+                <option value="Smarcamento in appoggio">Smarcamento in appoggio</option>
+                <option value="Smarcamento in area di rigore">Smarcamento in area di rigore</option>
+                <option value="Inserimento con palla">Inserimento con palla</option>
+                <option value="Inserimento senza palla">Inserimento senza palla</option>
+                <option value="Passaggio cross">Passaggio cross</option>
+                <option value="Passaggio diagonale">Passaggio diagonale</option>
+                <option value="Passaggio passante">Passaggio passante</option>
+                <option value="Passaggio verticalizzazione (lungo)">Passaggio verticalizzazione (lungo)</option>
+                <option value="Passaggio filtrante">Passaggio filtrante</option>
+                <option value="Dribbling di abilità">Dribbling di abilità</option>
+                <option value="Dribbling di potenza">Dribbling di potenza</option>
+                <option value="Sponda aerea">Sponda aerea</option>
+                <option value="Sponda rasoterra">Sponda rasoterra</option>
+                <option value="Tiro in porta">Tiro in porta</option>
+                <option value="Copertura e difesa palla">Copertura e difesa palla</option>
+            </select>
+            </div>
+            <div id="tattica_non_possesso" class="hidden">
+            <label for="tattica_non_possesso">Tattica Non Possesso:</label>
+            <select id="tattica_non_possesso" name="tattica_non_possesso">
+                <option value="">Qualsiasi</option>
+                <option value="Accorciamento">Accorciamento</option>
+                <option value="Anticipo">Anticipo</option>
+                <option value="Contrasto">Contrasto</option>
+                <option value="Intercettamento">Intercettamento</option>
+                <option value="Marcatura">Marcatura</option>
+                <option value="Posizionamento">Posizionamento</option>
+                <option value="Pressione">Pressione</option>
+                <option value="Recupero difensivo">Recupero difensivo</option>
+                <option value="Temporeggiamento">Temporeggiamento</option>
+            </select>
+            </div>
+            <div id="tecnica_portiere" class="hidden">
+            <label for="tecnica_portiere">Tecnica Portiere:</label>
+            <select id="tecnica_portiere" name="tecnica_portiere">
+                <option value="">Qualsiasi</option>
+                <option value="Presa">Presa</option>
+                <option value="Uscita alta">Uscita alta</option>
+                <option value="Uscita bassa">Uscita bassa</option>
+                <option value="Deviazione sopra la traversa">Deviazione sopra la traversa</option>
+                <option value="Respinta in campo">Respinta in campo</option>
+                <option value="Tuffo">Tuffo</option>
+                <option value="Rinvio con i piedi">Rinvio con i piedi</option>
+                <option value="Rimessa con le mani">Rimessa con le mani</option>
+                <option value="Passaggio">Passaggio</option>
+            </select>
+            </div>
+            <div id="tattica_portiere" class="hidden">
+            <label for="tattica_portiere">Tattica Portiere:</label>
+            <select id="tattica_portiere" name="tattica_portiere">
+                <option value="">Qualsiasi</option>
+                <option value="Piazzamento">Piazzamento</option>
+                <option value="Difesa porta">Difesa porta</option>
+                <option value="Guida della difesa">Guida della difesa</option>
+                <option value="Lettura situazionale">Lettura situazionale</option>
+                <option value="Transizioni">Transizioni</option>
+            </select>
+            </div>
+            <div id="firma" class="hidden">
+            <label for="firma">Firma:</label>
+            <input type="text" id="firma" name="firma" placeholder="Qualsiasi">
+            </div>
+            <button type="submit">Filtra</button>
+        </form>
+        <div id="overlay" class="overlay hidden">
+            <div id="overlay-content" class="overlay-content">
+                <div id="overlay-header" class="overlay-header">
+                    <button id="export-btn" class="overlay-btn">Esporta in DOCX</button>
+                    <button id="close-overlay" class="overlay-btn">Chiudi</button>
+                </div>
+                <div id="overlay-title">
+                    <h3 id="overlay-header-text">Nome colonna + Cognome giocatore</h3>
+                </div>
+
+                <!-- Campo di testo multilinea e input di tipo data -->
+                <label for="overlay-textarea" id="overlay-label">Modifica:</label>
+                <textarea id="overlay-textarea" rows="8" style="width: 100%; resize: none; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+                <input type="date" id="overlay-date-input" style="width: 100%; padding: 10px; display: none;"> <!-- Input di tipo data nascosto -->
+
+                <button id="save-overlay" class="overlay-btn">Salva</button>
+            </div>
+        </div>
+
+        <h2>Risultati</h2>
+        <!-- Tabella con dati e pulsanti di eliminazione -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Elimina</th>
+                        {% for col in columns %}
+                            <th>{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    {% for row in table_data %}
+                        <tr>
+                            <td><button class="delete-btn" onclick="confirmDelete({{ loop.index0 }})">X</button></td>
+                            {% for cell in row %}
+                                <td>{{ cell }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Overlay di conferma eliminazione -->
+        <div id="delete-overlay" class="overlay hidden">
+            <div class="overlay-content">
+                <h3>Sei sicuro di voler eliminare questa riga?</h3>
+                <button onclick="deleteRow()">Conferma</button>
+                <button onclick="closeDeleteOverlay()">Annulla</button>
+            </div>
+        </div>
+    <!-- Barra di scorrimento orizzontale separata -->
+    <div class="scroll-bar-wrapper">
+        <div class="scroll-bar">
+            <div style="width: 10000px;"></div> <!-- Fake content to trigger scrolling -->
+        </div>
+    </div>
+    </div>
+    </div>
+    <script>
+        // Funzione per mostrare il filtro selezionato
+        document.getElementById('add-filter').addEventListener('change', function() {
+            var selectedFilter = this.value;
+            if (selectedFilter) {
+                document.getElementById(selectedFilter).classList.remove('hidden');
+            }
+        });
+
+        function showOverlay(columnName, playerLastName, cellContent, rowIndex, colIndex) {
+            if (columnName === "Elimina" || columnName === "Firma" || columnName === "Aggiornato al") {
+                return; // Interrompe la funzione, evitando di aprire l'overlay di modifica
+            }
+
+            document.getElementById('overlay-header-text').innerText = columnName + " - " + playerLastName;
+
+            const overlayTextarea = document.getElementById('overlay-textarea');
+            const overlayDateInput = document.getElementById('overlay-date-input');
+            const overlayLabel = document.getElementById('overlay-label');
+
+            // Mostra il campo appropriato in base alla colonna
+            if (columnName === "Data di Nascita") {
+                overlayTextarea.style.display = "none";
+                overlayDateInput.style.display = "block";
+                overlayDateInput.value = cellContent ? cellContent : ""; // Imposta il valore esistente o lascia vuoto
+                overlayLabel.innerText = "Seleziona una data:";
+            } else {
+                overlayTextarea.style.display = "block";
+                overlayDateInput.style.display = "none";
+                overlayTextarea.value = cellContent; // Imposta il contenuto della cella
+                overlayLabel.innerText = "Modifica:";
+            }
+
+            document.getElementById('overlay').classList.remove('hidden');
+
+            // Funzionalità del pulsante "Salva"
+            document.getElementById('save-overlay').onclick = function() {
+                const newValue = columnName === "Data di nascita" ? overlayDateInput.value : overlayTextarea.value;
+                updateCell(newValue, rowIndex, colIndex - 1);
+            };
+        }
+
+
+
+
+
+        // Funzione per nascondere l'overlay
+        document.getElementById('close-overlay').addEventListener('click', function() {
+            document.getElementById('overlay').classList.add('hidden');
+        });
+
+
+
+
+        // Assegna il click alle celle della tabella
+        document.querySelectorAll('td').forEach(function(cell) {
+            cell.addEventListener('click', function() {
+                const columnName = this.closest('table').querySelector('th:nth-child(' + (this.cellIndex + 1) + ')').innerText;
+                const cellContent = this.innerText;
+
+                if (columnName === "Codice") {
+                    // Reindirizza alla pagina dettagliata del giocatore per la cella "Codice"
+                    window.location.href = '/giocatore/' + cellContent;
+                } else if (["Elimina", "Firma", "Aggiornato al"].includes(columnName)) {
+                    // Evita di aprire l'overlay per le colonne specificate
+                    return;
+                } else {
+                    const playerLastName = this.closest('tr').querySelector('td:nth-child(4)').innerText; // Modifica l'indice se necessario
+                    const rowIndex = this.parentNode.rowIndex - 1;  // Adatta l’indice per l’array
+                    const colIndex = this.cellIndex;
+                    showOverlay(columnName, playerLastName, cellContent, rowIndex, colIndex);
+                }
+            });
+        });
+
+        function updateCell(newValue, rowIndex, colIndex) {
+            fetch('/update_cell', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ newValue, rowIndex, colIndex })
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      location.reload();  // Ricarica la pagina per aggiornare la tabella
+                  } else {
+                      alert(data.error);  // Mostra il messaggio di errore
+                  }
+              }).catch(error => {
+                  console.error('Errore:', error);
+              });
+        }
+
+        let rowIndexToDelete = null;
+
+        function confirmDelete(index) {
+            rowIndexToDelete = index;
+            document.getElementById('delete-overlay').classList.remove('hidden');
+        }
+
+        function closeDeleteOverlay() {
+            document.getElementById('delete-overlay').classList.add('hidden');
+        }
+
+        function deleteRow() {
+            fetch('/delete_row', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rowIndex: rowIndexToDelete })
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      location.reload();  // Ricarica per aggiornare la tabella
+                  } else {
+                      alert(data.error);  // Mostra il messaggio di errore
+                  }
+              }).catch(error => {
+                  console.error('Errore:', error);
+              });
+
+            closeDeleteOverlay();
+        }
+
+        function toggleMenu() {
+            document.getElementById("loginMenu").classList.toggle("show");
+        }
+        window.onclick = function(event) {
+            if (!event.target.matches('.profile-circle-img')) {
+                var dropdowns = document.getElementsByClassName("login-menu");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>
+

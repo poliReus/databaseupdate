@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="../static/styles_login.css">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="{{ url_for('static', filename='logo.webp') }}" alt="Logo" class="logo">
+            <a href="{{ url_for('index') }}" class="nav-button">Home</a>
+            <a href="{{ url_for('visualizza') }}" class="nav-button">Visualizza Giocatori</a>
+            <a href="https://rigoripianese.github.io/sito_web/" class="nav-button" target="_blank">Gestione Rigoristi</a>
+            <a href="{{ url_for('aggiungi_giocatore') }}" class="nav-button">Aggiungi giocatori al Database</a>
+        </div>
+        <div class="navbar-right">
+            {% if current_user.is_authenticated %}
+            <div class="profile-circle">
+                <a href="{{ url_for('user_profile', username=current_user.username) }}">
+                    {% if current_user.profile_picture %}
+                        <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_picture) }}" alt="Foto profilo" class="profile-circle-img">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='profile_pics/nophoto.png') }}" alt="Foto profilo" class="profile-circle-img">
+                    {% endif %}
+                </a>
+            </div>
+            {% else %}
+            <div class="profile-circle" style="position:relative;">
+                <img src="{{ url_for('static', filename='profile_pics/nophoto.png') }}" alt="Foto profilo" class="profile-circle-img" onclick="toggleMenu()">
+                <div id="loginMenu" class="login-menu">
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Registrati</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        <img src="../static/logo.webp" alt="Logo">
+        <h1>Login</h1>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div>
+                <label for="email">Email</label>
+                {{ form.email(size=20) }}
+            </div>
+            <div>
+                <label for="password">Password</label>
+                {{ form.password(size=20) }}
+            </div>
+            <div>
+                {{ form.submit() }}
+            </div>
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("loginMenu").classList.toggle("show");
+        }
+        window.onclick = function(event) {
+            if (!event.target.matches('.profile-circle-img')) {
+                var dropdowns = document.getElementsByClassName("login-menu");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

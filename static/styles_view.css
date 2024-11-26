@@ -1,0 +1,379 @@
+/* Rimuove margine e padding dal body per attaccare la navbar in alto */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Navbar attaccata alla parte superiore della pagina */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    width: 100%; /* Assicura che occupi tutta la larghezza */
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1); /* Aggiunge un’ombra per separare visivamente la navbar dal contenuto */
+    box-sizing: border-box; /* Evita lo sbordamento */
+}
+
+/* Stile per i contenuti della navbar */
+.navbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-left h1 {
+    color: #fff;
+    font-size: 1.5em;
+    margin-left: 10px;
+}
+
+.logo {
+    width: 50px;
+    height: 50px;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Stile per i pulsanti della navbar simile a testo cliccabile */
+.nav-button {
+    padding: 0 15px; /* Spaziatura orizzontale tra i link */
+    color: #ffffff; /* Colore del testo */
+    text-decoration: none; /* Rimuove la sottolineatura */
+    font-size: 1rem; /* Dimensione del testo */
+    transition: color 0.3s; /* Effetto al passaggio del mouse */
+}
+
+/* Spaziatura tra i link */
+.navbar-left {
+    display: flex;
+    gap: 20px; /* Distanza tra i link */
+    align-items: center;
+}
+
+/* Hover per evidenziare solo il testo */
+.nav-button:hover {
+    color: #cce7ff; /* Colore più chiaro al passaggio del mouse */
+}
+
+/* Stile per il cerchio del profilo nella navbar */
+.profile-circle {
+    position: relative;
+}
+
+.profile-circle-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #333;
+    cursor: pointer;
+}
+
+/* Menu a comparsa per login/registrazione */
+.login-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 60px;
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    z-index: 1;
+}
+
+.login-menu a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #333;
+}
+
+.login-menu a:hover {
+    background-color: #f0f0f0;
+}
+
+/* Mostra il menu a comparsa quando cliccato */
+.show {
+    display: block;
+}
+
+/* Aggiusta il contenitore principale per evitare che la navbar copra il contenuto */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 80px 20px 20px; /* Compensa l'altezza della navbar e aggiunge padding */
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+/* Stile del titolo e del testo introduttivo */
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+h3 {
+    text-align: center;
+    color: #666;
+}
+
+/* Stile del form di filtro */
+form {
+    margin-bottom: 30px;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Stili per la tabella */
+.table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+    max-height: 400px;
+    margin-bottom: 50px;
+    position: relative;
+    background-color: #fff;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+table th,
+table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    max-width: 150px; /* Imposta una larghezza massima uniforme per tutte le colonne */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Tronca il testo troppo lungo */
+    white-space: nowrap; /* Impedisce al testo di andare a capo */
+}
+
+table th {
+    background-color: #f7f7f7;
+    font-weight: bold;
+    color: #555;
+}
+
+table td {
+    cursor: pointer;
+}
+
+/* Effetto hover per le celle */
+table tr:hover {
+    background-color: #f9f9f9;
+}
+
+table td:hover {
+    background-color: #f1f1f1; /* Colore di sfondo al passaggio del mouse */
+}
+
+/* Stile per il pulsante di eliminazione */
+.delete-btn {
+    color: red;
+    font-weight: bold;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* Overlay di conferma eliminazione */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.overlay-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 50%;
+    max-width: 600px;
+    text-align: center;
+}
+
+.overlay-content h3 {
+    margin-bottom: 20px;
+}
+
+.overlay-content button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#overlay-input {
+    width: 100%;
+    height: auto;
+    resize: none;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.overlay-content button:first-child {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+.overlay-content button:last-child {
+    background-color: #ccc;
+    color: #333;
+    border: none;
+    border-radius: 4px;
+}
+
+/* Nasconde l'overlay di conferma eliminazione per default */
+.hidden {
+    display: none;
+}
+
+/* La barra di scorrimento separata, fissa in basso */
+.scroll-bar-wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    padding: 10px 0;
+    z-index: 100;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.scroll-bar {
+    overflow-x: auto;
+    width: 100%;
+    white-space: nowrap;
+}
+
+/* Pulsante di chiusura */
+.close-overlay {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+#overlay-header {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px;
+    border-radius: 8px 8px 0 0;
+    text-align: center;
+    font-size: 18px;
+}
+
+/* Stili per la barra superiore */
+.overlay-header {
+    display: flex;
+    justify-content: space-between;
+    background-color: #007BFF;
+    padding: 10px;
+    border-radius: 8px 8px 0 0;
+    color: white;
+}
+
+/* Stili per i bottoni nella barra */
+.overlay-btn {
+    background-color: #fff;
+    color: #007BFF;
+    border: 2px solid #007BFF;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.overlay-btn:hover {
+    background-color: #007BFF;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 90px 10px 10px;
+    }
+
+    input, select, button {
+        font-size: 14px;
+    }
+
+    label {
+        font-size: 14px;
+    }
+
+    table th,
+    table td {
+        font-size: 14px;
+        padding: 8px;
+        max-width: 100px; /* Riduci la larghezza massima su schermi più piccoli */
+    }
+}

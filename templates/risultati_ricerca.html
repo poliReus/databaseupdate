@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles_view.css') }}">
+    <title>Risultati Ricerca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+        .btn-back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .btn-back:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Risultati della Ricerca</h1>
+        <p><strong>Descrizione:</strong> {{ query }}</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Cognome</th>
+                    <th>Ruolo</th>
+                    <th>Età</th>
+                    <th>Piede</th>
+                    <th>Valutazione</th>
+                    <th>Prospettiva</th>
+                    <th>Score Similarità</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for giocatore in giocatori %}
+                <tr>
+                    <td>{{ giocatore["Nome"] }}</td>
+                    <td>{{ giocatore["Cognome"] }}</td>
+                    <td>{{ giocatore.get("Ruolo 1", "N/A") }}</td>
+                    <td>{{ 2024 - giocatore.get("Anno Di Nascita", 2024) }}</td>
+                    <td>{{ giocatore.get("Piede", "N/A") }}</td>
+                    <td>{{ giocatore.get("Valutazione", "N/A") }}</td>
+                    <td>{{ giocatore.get("Prospettiva", "N/A") }}</td>
+                    <td>{{ giocatore["similarity_score"] | round(2) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('cerca_giocatori') }}" class="btn-back">Torna alla Ricerca</a>
+    </div>
+</body>
+</html>

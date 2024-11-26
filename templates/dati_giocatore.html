@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dettagli Giocatore</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_giocatore.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Navbar corretta -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="{{ url_for('static', filename='logo.webp') }}" alt="Logo" class="logo">
+            <a href="{{ url_for('index') }}" class="nav-button">Home</a>
+            <a href="{{ url_for('visualizza') }}" class="nav-button">Visualizza Giocatori</a>
+            <a href="https://rigoripianese.github.io/sito_web/" class="nav-button" target="_blank">Gestione Rigoristi</a>
+        </div>
+        <div class="navbar-right">
+            {% if current_user.is_authenticated %}
+            <div class="profile-circle">
+                <a href="{{ url_for('user_profile', username=current_user.username) }}">
+                    {% if current_user.profile_picture %}
+                        <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_picture) }}" alt="Foto profilo" class="profile-circle-img">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='profile_pics/nophoto.png') }}" alt="Foto profilo" class="profile-circle-img">
+                    {% endif %}
+                </a>
+            </div>
+            {% else %}
+            <div class="profile-circle">
+                <img src="{{ url_for('static', filename='profile_pics/nophoto.png') }}" alt="Foto profilo" class="profile-circle-img" onclick="toggleMenu()">
+                <div id="loginMenu" class="login-menu">
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Registrati</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- Foto, Nome, Età e Squadra Attuale del Giocatore -->
+        <div class="profile-section">
+            <img src="{{ url_for('static', filename='images/player_placeholder.png') }}" alt="Foto Giocatore" class="player-photo animate__animated animate__fadeInDown">
+            <h2>{{ giocatore_data[0]['Nome'] }} {{ giocatore_data[0]['Cognome'] }}</h2>
+            <p>Età: {{ eta }} anni</p>
+            <p>Squadra Attuale: {{ squadra_attuale }}</p>
+        </div>
+
+        <!-- Carosello delle analisi del giocatore -->
+        <div class="carousel-container">
+            <h3>Analisi del Giocatore</h3>
+            <div class="carousel-slide-container">
+                {% for riga in giocatore_data %}
+                <div class="carousel-slide {{ 'active' if loop.index == 1 else '' }}">
+                    <p><strong>Data:</strong> {{ riga['Aggiornato al'] }}</p>
+
+                    <!-- Caratteristiche Fisiche -->
+                    <section class="section">
+                        <h4>Caratteristiche Fisiche</h4>
+                        <p>Altezza: {{ riga['Altezza'] }} cm</p>
+                        <p>Costituzione: {{ riga['Costituzione'] }}</p>
+                        <p>Morfologia: {{ riga['Morfologia'] }}</p>
+                        <p>Somatotipo: {{ riga['Somatotipo'] }}</p>
+                        <p>Condizionale: {{ riga['Condizionale'] }}</p>
+                    </section>
+
+                    <!-- Caratteristiche Tecniche -->
+                    <section class="section">
+                        <h4>Caratteristiche Tecniche</h4>
+                        <p>Tecnica: {{ riga['Tecnica'] }}</p>
+                        <p>Tecnica Portiere: {{ riga['Tecnica Portiere'] }}</p>
+                    </section>
+
+                    <!-- Caratteristiche Tattiche -->
+                    <section class="section">
+                        <h4>Caratteristiche Tattiche</h4>
+                        <p>Ruolo 1: {{ riga['Ruolo 1'] }}</p>
+                        <p>Ruolo 2: {{ riga['Ruolo 2'] }}</p>
+                        <p>Ruolo 3: {{ riga['Ruolo 3'] }}</p>
+                        <p>Attitudine Tattica 1: {{ riga['Attitudine Tattica 1'] }}</p>
+                        <p>Attitudine Tattica 2: {{ riga['Attitudine Tattica 2'] }}</p>
+                        <p>Tattica Possesso: {{ riga['Tattica Possesso'] }}</p>
+                        <p>Tattica Non Possesso: {{ riga['Tattica Non Possesso'] }}</p>
+                        <p>Tattica Portiere: {{ riga['Tattica Portiere'] }}</p>
+                    </section>
+
+                    <p><strong>Relazione:</strong> {{ riga['Relazione'] }}</p>
+                    <p><strong>Firma:</strong> {{ riga['Firma'] }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Controlli del carosello -->
+            <div class="carousel-nav">
+                <button onclick="prevSlide()">← Precedente</button>
+                <button onclick="nextSlide()">Successivo →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+    </script>
+</body>
+</html>

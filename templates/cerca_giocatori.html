@@ -1,0 +1,21 @@
+<!-- templates/cerca_giocatori.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cerca Giocatori con AI</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Cerca Giocatori con AI</h2>
+        <form method="POST" class="mb-4">
+            <div class="form-group">
+                <label for="descrizione">Descrivi il giocatore che stai cercando:</label>
+                <textarea class="form-control" id="descrizione" name="descrizione" rows="4" required
+                    placeholder="Esempio: Cerco un centrocampista offensivo mancino, tecnicamente forte, con buona visione di gioco e capacità di inserimento. Preferibilmente giovane con buona prospettiva di crescita."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Cerca</button>
+        </form>
+    </div>
+</body>
+</html>

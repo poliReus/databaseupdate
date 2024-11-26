@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Gestione Giocatori</title>
+</head>
+<body>
+    <!-- Barra di navigazione -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <img src="{{ url_for('static', filename='logo.webp') }}" alt="Logo" class="logo">
+            <a href="{{ url_for('index') }}" class="nav-button">Home</a>
+            <a href="{{ url_for('visualizza') }}" class="nav-button">Visualizza Giocatori</a>
+            <a href="https://rigoripianese.github.io/sito_web/" class="nav-button" target="_blank">Gestione Rigoristi</a>
+        </div>
+        <div class="navbar-right">
+            {% if current_user.is_authenticated %}
+            <div class="profile-circle">
+                <a href="{{ url_for('user_profile', username=current_user.username) }}">
+                    {% if current_user.profile_picture %}
+                        <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_picture) }}" alt="Foto profilo" class="profile-circle-img">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='profile_pics/nophoto.png') }}" alt="Foto profilo" class="profile-circle-img">
+                    {% endif %}
+                </a>
+            </div>
+            {% else %}
+            <div class="profile-circle">
+                <img src="{{ url_for('static', filename='profile_pics/nophoto.png') }}" alt="Foto profilo" class="profile-circle-img" onclick="toggleMenu()">
+                <div id="loginMenu" class="login-menu">
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Registrati</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+
+
+    <div class="container">
+        <h1>Gestione Giocatori</h1>
+
+
+        <form method="POST" action="{{ url_for('add_row') }}" class="form-style">
+            <label for="categoria">Categoria:</label>
+            <select id="categoria" name="categoria" required>
+                <option value="Serie A">Serie A</option>
+                <option value="Serie B">Serie B</option>
+                <option value="Serie C">Serie C</option>
+                <option value="Serie D">Serie D</option>
+                <option value="Eccellenza">Eccellenza</option>
+                <option value="Primavera 1">Primavera 1</option>
+                <option value="Primavera 2">Primavera 2</option>
+                <option value="Primavera 3">Primavera 3</option>
+                <option value="Primavera 4">Primavera 4</option>
+            </select>
+
+            <label for="nazione">Nazione:</label>
+            <input type="text" id="nazione" name="nazione" required>
+
+            <label for="cognome">Cognome:</label>
+            <input type="text" id="cognome" name="cognome" required>
+
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required>
+
+            <label for="data_di_nascita">Data di Nascita:</label>
+            <input type="date" id="data_di_nascita" name="data_di_nascita" required>
+
+            <label for="anno_di_nascita">Anno Di Nascita:</label>
+            <input type="number" id="anno_di_nascita" name="anno_di_nascita" required>
+
+            <label for="piede">Piede:</label>
+            <select id="piede" name="piede" required>
+                <option value="Dx">Destro</option>
+                <option value="Sx">Sinistro</option>
+            </select>
+
+            <label for="squadra">Squadra:</label>
+            <input type="text" id="squadra" name="squadra" required>
+
+            <label for="analisi">Analisi:</label>
+            <select id="analisi" name="analisi" required>
+                <option value="APR">Anno-Piede-Ruolo</option>
+                <option value="Monitoraggio">Monitoraggio</option>
+                <option value="RelazioneGiocatore">Relazione Giocatore</option>
+            </select>
+
+            <label for="ruolo_1">Ruolo 1:</label>
+            <select id="ruolo_1" name="ruolo_1" required>
+                <option value="P">Portiere</option>
+                <option value="DIF_CEN_D/S">Difensore Centrale Destro/Sinistro</option>
+                <option value="DIF_CEN_LAT_D/S">Difensore Centrale Laterale Destro/Sinistro</option>
+                <option value="DIF_CEN">Difensore Centrale</option>
+                <option value="DIF_EST">Difensore Esterno</option>
+                <option value="DIF_LAT">Difensore Laterale</option>
+                <option value="MED">Mediano</option>
+                <option value="CEN_CEN">Centrocampista Centrale</option>
+                <option value="CEN_INT">Centrocampista Interno</option>
+                <option value="CEN_LAT">Centrocampista Laterale</option>
+                <option value="CEN_EST">Centrocampista Esterno</option>
+                <option value="TRQ_CEN">Trequartista Centrale</option>
+                <option value="TRQ_LAT">Trequartista Laterale</option>
+                <option value="ATT_TRQ_CEN">Attaccante Trequartista Centrale</option>
+                <option value="ATT_TRQ_LAT">Attaccante Trequartista Laterale</option>
+                <option value="ATT_TRQ_EST">Attaccante Trequartista Esterno</option>
+                <option value="ATT_EST">Attaccante Esterno</option>
+                <option value="ATT_LAT">Attaccante Laterale</option>
+                <option value="ATT_CEN">Attaccante Centrale</option>
+            </select>
+
+            <label for="ruolo_2">Ruolo 2:</label>
+            <select id="ruolo_2" name="ruolo_2">
+                <option value="None">None</option>
+                <option value="P">Portiere</option>
+                <option value="DIF_CEN_D/S">Difensore Centrale Destro/Sinistro</option>
+                <option value="DIF_CEN_LAT_D/S">Difensore Centrale Laterale Destro/Sinistro</option>
+                <option value="DIF_CEN">Difensore Centrale</option>
+                <option value="DIF_EST">Difensore Esterno</option>
+                <option value="DIF_LAT">Difensore Laterale</option>
+                <option value="MED">Mediano</option>
+                <option value="CEN_CEN">Centrocampista Centrale</option>
+                <option value="CEN_INT">Centrocampista Interno</option>
+                <option value="CEN_LAT">Centrocampista Laterale</option>
+                <option value="CEN_EST">Centrocampista Esterno</option>
+                <option value="TRQ_CEN">Trequartista Centrale</option>
+                <option value="TRQ_LAT">Trequartista Laterale</option>
+                <option value="ATT_TRQ_CEN">Attaccante Trequartista Centrale</option>
+                <option value="ATT_TRQ_LAT">Attaccante Trequartista Laterale</option>
+                <option value="ATT_TRQ_EST">Attaccante Trequartista Esterno</option>
+                <option value="ATT_EST">Attaccante Esterno</option>
+                <option value="ATT_LAT">Attaccante Laterale</option>
+                <option value="ATT_CEN">Attaccante Centrale</option>
+            </select>
+
+            <label for="ruolo_3">Ruolo 3:</label>
+            <select id="ruolo_3" name="ruolo_3">
+                <option value="None">None</option>
+                <option value="P">Portiere</option>
+                <option value="DIF_CEN_D/S">Difensore Centrale Destro/Sinistro</option>
+                <option value="DIF_CEN_LAT_D/S">Difensore Centrale Laterale Destro/Sinistro</option>
+                <option value="DIF_CEN">Difensore Centrale</option>
+                <option value="DIF_EST">Difensore Esterno</option>
+                <option value="DIF_LAT">Difensore Laterale</option>
+                <option value="MED">Mediano</option>
+                <option value="CEN_CEN">Centrocampista Centrale</option>
+                <option value="CEN_INT">Centrocampista Interno</option>
+                <option value="CEN_LAT">Centrocampista Laterale</option>
+                <option value="CEN_EST">Centrocampista Esterno</option>
+                <option value="TRQ_CEN">Trequartista Centrale</option>
+                <option value="TRQ_LAT">Trequartista Laterale</option>
+                <option value="ATT_TRQ_CEN">Attaccante Trequartista Centrale</option>
+                <option value="ATT_TRQ_LAT">Attaccante Trequartista Laterale</option>
+                <option value="ATT_TRQ_EST">Attaccante Trequartista Esterno</option>
+                <option value="ATT_EST">Attaccante Esterno</option>
+                <option value="ATT_LAT">Attaccante Laterale</option>
+                <option value="ATT_CEN">Attaccante Centrale</option>
+            </select>
+
+            <label for="profilo_attaccante">Profilo Attaccante:</label>
+            <select id="profilo_attaccante" name="profilo_attaccante">
+                <option value="Prima punta di movimento">Prima punta di movimento</option>
+                <option value="Prima punta di posizione">Prima punta di posizione</option>
+                <option value="Ala">Ala</option>
+                <option value="Seconda punta">Seconda punta</option>
+                <option value="Mezza punta">Mezza punta</option>
+                <option value="-">Nessun profilo specificato</option>
+            </select>
+
+            <label for="attitudine_tattica_1">Attitudine Tattica 1:</label>
+            <select id="attitudine_tattica_1" name="attitudine_tattica_1">
+                <option value="D">Difesa</option>
+                <option value="R">Regia</option>
+                <option value="AR">Attacco di rifinitura</option>
+                <option value="AF">Attacco di finalizzazione</option>
+                <option value="-">Non specificata</option>
+            </select>
+
+            <label for="attitudine_tattica_2">Attitudine Tattica 2:</label>
+            <select id="attitudine_tattica_2" name="attitudine_tattica_2">
+                <option value="D">Difesa</option>
+                <option value="R">Regia</option>
+                <option value="AR">Attacco di rifinitura</option>
+                <option value="AF">Attacco di finalizzazione</option>
+                <option value="-">Non specificata</option>
+
+            </select>
+
+            <label for="attitudine_tattica_po_1">Attitudine Tattica PO 1:</label>
+            <select id="attitudine_tattica_po_1" name="attitudine_tattica_po_1">
+                <option value="DP">Difesa della Porta</option>
+                <option value="DS">Difesa dello Spazio</option>
+                <option value="DA">Difesa Aerea</option>
+                <option value="R">Regia</option>
+                <option value="-">Non specificata</option>
+            </select>
+
+            <label for="attitudine_tattica_po_2">Attitudine Tattica PO 2:</label>
+            <select id="attitudine_tattica_po_2" name="attitudine_tattica_po_2">
+                <option value="DP">Difesa della Porta</option>
+                <option value="DS">Difesa dello Spazio</option>
+                <option value="DA">Difesa Aerea</option>
+                <option value="R">Regia</option>
+                <option value="-">Non specificata</option>
+            </select>
+
+            <label for="altezza">Altezza (cm):</label>
+            <select id="altezza" name="altezza" required>
+                <option value="Altezza bassissima">Sotto i 170 cm</option>
+                <option value="Altezza bassa">Tra 170 cm e 175 cm</option>
+                <option value="Altezza bassa-media">Tra 175 cm e 180 cm</option>
+                <option value="Altezza media-bassa">Tra 180 cm e 175 cm</option>
+                <option value="Altezza media-alta">Tra 180 cm e 185 cm</option>
+                <option value="Altezza alta-media">Tra 185 cm e 180 cm</option>
+                <option value="Altezza alta">Tra 185 cm e 190 cm</option>
+                <option value="Altezza altissima">Sopra i 190 cm</option>
+                <option value="-">Non specificata</option>
+            </select>
+
+            <label for="costituzione">Costituzione:</label>
+            <select id="costituzione" name="costituzione">
+                <option value="Esile">Esile</option>
+                <option value="Media-Esile">Media-Esile</option>
+                <option value="Media">Media</option>
+                <option value="Media-Robusta">Media-Robusta</option>
+                <option value="Robusta">Robusta</option>
+                <option value="-">Non specificata</option>
+            </select>
+
+            <label for="morfologia">Morfologia:</label>
+            <select id="morfologia" name="morfologia">
+                <option value="Brevitipo">Brevitipo</option>
+                <option value="Normotipo">Normotipo</option>
+                <option value="Longitipo">Longitipo</option>
+                <option value="-">Non specificata</option>
+            </select>
+
+            <label for="somatotipo">Somatotipo:</label>
+            <select id="somatotipo" name="somatotipo">
+                <option value="Ectomorfo">Ectomorfo</option>
+                <option value="Mesomorfo">Mesomorfo</option>
+                <option value="Endomorfo">Endomorfo</option>
+                <option value="Ecto-mesomorfo">Ecto-mesomorfo</option>
+                <option value="Meso-endomorfo">Meso-endomorfo</option>
+                <option value="-">Non specificato</option>
+            </select>
+
+            <label for="condizionale">Condizionale:</label>
+            <select id="condizionale" name="condizionale">
+                <option value="Resistenza">Resistenza</option>
+                <option value="Velocità">Velocità</option>
+                <option value="Rapidità">Rapidità</option>
+                <option value="Forza esplosiva">Forza esplosiva</option>
+                <option value="Forza massimale">Forza massimale</option>
+                <option value="Forza resistente">Forza resistente</option>
+                <option value="Flessibilità">Flessibilità</option>
+                <option value="Intensità">Intensità</option>
+                <option value="Potenza">Potenza</option>
+                <option value="-">Non specificato</option>
+            </select>
+
+            <label for="valutazione">Valutazione:</label>
+            <select id="valutazione" name="valutazione">
+                <option value="1 / 5">1 / 5: può fare la categoria ma non lo prenderei</option>
+                <option value="2 / 5">2 / 5: giocatore discreto per la categoria</option>
+                <option value="3 / 5">3 / 5: buon giocatore per la categoria</option>
+                <option value="4 / 5">4 / 5: ottimo giocatore da primi posti</option>
+                <option value="5 / 5">5 / 5: top per la categoria</option>
+                <option value="-">Non specificato</option>
+            </select>
+
+            <label for="prospettiva">Prospettiva:</label>
+            <select id="prospettiva" name="prospettiva">
+                <option value="In crescita">In crescita</option>
+                <option value="Stabile">Stabile</option>
+                <option value="In calo">In calo</option>
+                <option value="-">Non specificato</option>
+            </select>
+
+            <label for="tecnica">Tecnica:</label>
+            <select id="tecnica" name="tecnica">
+                <option value="Dominio palla">Dominio palla</option>
+                <option value="Guida della palla">Guida della palla</option>
+                <option value="Calcio">Calcio</option>
+                <option value="Colpo di testa">Colpo di testa</option>
+                <option value="Postura e ricezione">Postura e ricezione</option>
+                <option value="Rimessa Laterale Lunga">Rimessa Laterale Lunga</option>
+                <option value="-">Non specificato</option>
+            </select>
+
+            <label for="tattica_possesso">Tattica Possesso:</label>
+            <select id="tattica_possesso" name="tattica_possesso">
+                <option value="Smarcamento incontro">Smarcamento incontro</option>
+                <option value="Smarcamento in fuori linea">Smarcamento in fuori linea</option>
+                <option value="Smarcamento in ampiezza">Smarcamento in ampiezza</option>
+                <option value="Smarcamento profondità lunga">Smarcamento profondità lunga</option>
+                <option value="Smarcamento taglio corto">Smarcamento taglio corto</option>
+                <option value="Smarcamento sovrapposizione">Smarcamento sovrapposizione</option>
+                <option value="Smarcamento a sostegno">Smarcamento a sostegno</option>
+                <option value="Smarcamento tra le linee">Smarcamento tra le linee</option>
+                <option value="Smarcamento in appoggio">Smarcamento in appoggio</option>
+                <option value="Smarcamento in area di rigore">Smarcamento in area di rigore</option>
+                <option value="Inserimento con palla">Inserimento con palla</option>
+                <option value="Inserimento senza palla">Inserimento senza palla</option>
+                <option value="Passaggio cross">Passaggio cross</option>
+                <option value="Passaggio diagonale">Passaggio diagonale</option>
+                <option value="Passaggio passante">Passaggio passante</option>
+                <option value="Passaggio verticalizzazione (lungo)">Passaggio verticalizzazione (lungo)</option>
+                <option value="Passaggio filtrante">Passaggio filtrante</option>
+                <option value="Dribbling di abilità">Dribbling di abilità</option>
+                <option value="Dribbling di potenza">Dribbling di potenza</option>
+                <option value="Sponda aerea">Sponda aerea</option>
+                <option value="Sponda rasoterra">Sponda rasoterra</option>
+                <option value="Tiro in porta">Tiro in porta</option>
+                <option value="Copertura e difesa palla">Copertura e difesa palla</option>
+                <option value="-">Non specificato</option>
+            </select>
+
+            <label for="tattica_non_possesso">Tattica Non Possesso:</label>
+            <select id="tattica_non_possesso" name="tattica_non_possesso">
+                <option value="Accorciamento">Accorciamento</option>
+                <option value="Anticipo">Anticipo</option>
+                <option value="Contrasto">Contrasto</option>
+                <option value="Intercettamento">Intercettamento</option>
+                <option value="Marcatura">Marcatura</option>
+                <option value="Posizionamento">Posizionamento</option>
+                <option value="Pressione">Pressione</option>
+                <option value="Recupero difensivo">Recupero difensivo</option>
+                <option value="Temporeggiamento">Temporeggiamento</option>
+                <option value="-">Non specificato</option>
+            </select>
+
+            <label for="tecnica_portiere">Tecnica Portiere:</label>
+            <select id="tecnica_portiere" name="tecnica_portiere">
+                <option value="Presa">Presa</option>
+                <option value="Uscita alta">Uscita alta</option>
+                <option value="Uscita bassa">Uscita bassa</option>
+                <option value="Deviazione sopra la traversa">Deviazione sopra la traversa</option>
+                <option value="Respinta in campo">Respinta in campo</option>
+                <option value="Tuffo">Tuffo</option>
+                <option value="Rinvio con i piedi">Rinvio con i piedi</option>
+                <option value="Rimessa con le mani">Rimessa con le mani</option>
+                <option value="Passaggio">Passaggio</option>
+                <option value="-">Non specificato</option>
+            </select>
+
+            <label for="tattica_portiere">Tattica Portiere:</label>
+            <select id="tattica_portiere" name="tattica_portiere">
+                <option value="Piazzamento">Piazzamento</option>
+                <option value="Difesa porta">Difesa porta</option>
+                <option value="Guida della difesa">Guida della difesa</option>
+                <option value="Lettura situazionale">Lettura situazionale</option>
+                <option value="Transizioni">Transizioni</option>
+                <option value="-">Non specificato</option>
+            </select>
+
+            <label for="link_relazione">Link relazione:</label>
+            <input type="text" id="link_relazione" name="link_relazione">
+
+            <label for="relazione">Relazione:</label>
+            <textarea id="relazione" name="relazione" rows="4" cols="50" style="height: 600px;"></textarea>
+
+            <!-- Campo Firma - Non modificabile e opacizzato solo se l'utente è autenticato -->
+            <div class="form-group">
+                <label for="firma">Firma</label>
+                {% if current_user.is_authenticated %}
+                    <input type="text" name="firma" id="firma" class="form-control firma-field" value="{{ current_user.username }}" readonly>
+                {% else %}
+                    <p class="text-muted">Devi essere loggato per aggiungere giocatori.</p>
+                {% endif %}
+            </div>
+
+
+
+            <label for="link_video">Link Video:</label>
+            <input type="text" id="link_video" name="link_video">
+
+            <button type="submit" class="btn btn-primary" {% if not current_user.is_authenticated %}disabled{% endif %}>Aggiungi giocatore</button>
+        </form>
+
+        <a href="{{ url_for('download_file') }}" class="download-button">Scarica il file Excel aggiornato</a>
+        <a href="{{ url_for('download_csv') }}" class="download-button">Scarica il file CSV aggiornato</a>
+        <a href="{{ url_for('visualizza') }}" class="download-button">Visualizza Giocatori</a>
+
+    </div>
+    <script>
+        function toggleMenu() {
+            document.getElementById("loginMenu").classList.toggle("show");
+        }
+        window.onclick = function(event) {
+            if (!event.target.matches('.profile-circle-img')) {
+                var dropdowns = document.getElementsByClassName("login-menu");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

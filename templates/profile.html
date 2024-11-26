@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='profile_styles.css') }}">
+    <title>Profilo di {{ user.username }}</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Profilo di {{ user.username }}</h1>
+
+        <!-- Bottone Logout in alto a destra -->
+        <div class="logout-button-container">
+            <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+        </div>
+
+        <!-- Bottone per tornare alla pagina iniziale -->
+        <a href="{{ url_for('index') }}" class="back-button">Torna alla pagina iniziale</a>
+
+        <!-- Sezione per il caricamento della foto profilo -->
+        <div class="profile-section">
+            <h2>La tua foto profilo</h2>
+            {% if user.profile_picture %}
+                <img src="{{ url_for('static', filename='profile_pics/' + user.profile_picture) }}" alt="Foto profilo di {{ user.username }}" class="profile-pic">
+            {% else %}
+                <p>Non hai ancora caricato una foto profilo.</p>
+            {% endif %}
+            <form action="{{ url_for('upload_profile_picture') }}" method="POST" enctype="multipart/form-data" class="upload-form">
+                <label for="profile_picture">Carica una nuova foto profilo</label>
+                <input type="file" name="profile_picture" accept="image/*">
+                <button type="submit" class="btn btn-primary">Carica foto</button>
+            </form>
+        </div>
+
+        <!-- Sezione per visualizzare i giocatori aggiunti dall'utente con la stessa tabella di visualizza.html -->
+        <div class="players-section">
+            <h2>Giocatori aggiunti da te</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Cognome</th>
+                            <th>Data di Nascita</th>
+                            <th>Anno Di Nascita</th>
+                            <th>Piede</th>
+                            <th>Squadra</th>
+                            <th>Ruolo 1</th>
+                            <th>Ruolo 2</th>
+                            <th>Ruolo 3</th>
+                            <th>Analisi</th>
+                            <th>Profilo Attaccante</th>
+                            <th>Attitudine Tattica 1</th>
+                            <th>Attitudine Tattica 2</th>
+                            <th>Attitudine Tattica PO 1</th>
+                            <th>Attitudine Tattica PO 2</th>
+                            <th>Altezza</th>
+                            <th>Costituzione</th>
+                            <th>Morfologia</th>
+                            <th>Somatotipo</th>
+                            <th>Condizionale</th>
+                            <th>Valutazione</th>
+                            <th>Prospettiva</th>
+                            <th>Tecnica</th>
+                            <th>Tattica Possesso</th>
+                            <th>Tattica Non Possesso</th>
+                            <th>Tecnica Portiere</th>
+                            <th>Tattica Portiere</th>
+                            <th>Firma</th>
+                            <th>Link Relazione</th>
+                            <th>Relazione</th>
+                            <th>Link Video</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        {% for player in players %}
+                        <tr>
+                            <td>{{ player['Nome'] }}</td>
+                            <td>{{ player['Cognome'] }}</td>
+                            <td>{{ player['Data di Nascita'] }}</td>
+                            <td>{{ player['Anno Di Nascita'] }}</td>
+                            <td>{{ player['Piede'] }}</td>
+                            <td>{{ player['Squadra'] }}</td>
+                            <td>{{ player['Ruolo 1'] }}</td>
+                            <td>{{ player['Ruolo 2'] }}</td>
+                            <td>{{ player['Ruolo 3'] }}</td>
+                            <td>{{ player['Analisi'] }}</td>
+                            <td>{{ player['Profilo Attaccante'] }}</td>
+                            <td>{{ player['Attitudine Tattica 1'] }}</td>
+                            <td>{{ player['Attitudine Tattica 2'] }}</td>
+                            <td>{{ player['Attitudine Tattica PO 1'] }}</td>
+                            <td>{{ player['Attitudine Tattica PO 2'] }}</td>
+                            <td>{{ player['Altezza'] }}</td>
+                            <td>{{ player['Costituzione'] }}</td>
+                            <td>{{ player['Morfologia'] }}</td>
+                            <td>{{ player['Somatotipo'] }}</td>
+                            <td>{{ player['Condizionale'] }}</td>
+                            <td>{{ player['Valutazione'] }}</td>
+                            <td>{{ player['Prospettiva'] }}</td>
+                            <td>{{ player['Tecnica'] }}</td>
+                            <td>{{ player['Tattica Possesso'] }}</td>
+                            <td>{{ player['Tattica Non Possesso'] }}</td>
+                            <td>{{ player['Tecnica Portiere'] }}</td>
+                            <td>{{ player['Tattica Portiere'] }}</td>
+                            <td>{{ player['Firma'] }}</td>
+                            <td><a href="{{ player['Link Relazione'] }}" target="_blank">Link</a></td>
+                            <td>{{ player['Relazione'] }}</td>
+                            <td><a href="{{ player['Link Video'] }}" target="_blank">Video</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Overlay -->
+        <div id="overlay" class="overlay hidden">
+            <div id="overlay-content" class="overlay-content">
+                <div id="overlay-header" class="overlay-header">
+                    <button id="close-overlay" class="overlay-btn">Chiudi</button>
+                </div>
+                <h3 id="overlay-header-text"></h3>
+                <p id="overlay-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Funzione per mostrare l'overlay con il nome e cognome
+        function showOverlay(columnName, playerLastName, cellContent) {
+            document.getElementById('overlay-header-text').innerText = columnName + " - " + playerLastName;
+            document.getElementById('overlay-text').innerText = cellContent;
+            document.getElementById('overlay').classList.remove('hidden');
+        }
+
+        document.getElementById('close-overlay').addEventListener('click', function() {
+            document.getElementById('overlay').classList.add('hidden');
+        });
+
+        document.querySelectorAll('td').forEach(function(cell) {
+            cell.addEventListener('click', function() {
+                const columnName = this.closest('table').querySelector('th:nth-child(' + (this.cellIndex + 1) + ')').innerText;
+                const playerLastName = this.closest('tr').querySelector('td:nth-child(2)').innerText;
+                const cellContent = this.innerText;
+                showOverlay(columnName, playerLastName, cellContent);
+            });
+        });
+    </script>
+</body>
+</html>

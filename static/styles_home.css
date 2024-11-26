@@ -1,0 +1,159 @@
+/* Recupero di stili principali da styles.css */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+h1, h2 {
+    text-align: center;
+    color: #444;
+}
+
+/* Stile della navbar centrata e dimensioni delle immagini */
+.navbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Stili per i link della navbar */
+.nav-button {
+    color: #ffffff;
+    padding: 0 15px;
+    font-size: 1.1rem;
+    transition: color 0.3s;
+    text-decoration: none;
+}
+
+.nav-button:hover {
+    color: #cce7ff;
+}
+
+/* Logo della navbar */
+.logo {
+    width: 40px;
+    height: 40px;
+    margin-right: 15px;
+    vertical-align: middle;
+}
+
+/* Immagine del profilo */
+.profile-circle-img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    margin-left: 0px;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+/* Menu a comparsa per login/registrazione */
+.login-menu {
+    display: none;
+    position: absolute;
+    top: 45px; /* Posiziona il menu appena sotto la foto del profilo */
+    left: 0; /* Allinea il menu a sinistra rispetto alla foto */
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    z-index: 1;
+}
+
+
+.login-menu a {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #333;
+}
+
+.login-menu a:hover {
+    background-color: #f0f0f0;
+}
+
+/* Mostra il menu a comparsa quando cliccato */
+.show {
+    display: block;
+}
+
+
+/* Hero section unica per la home page */
+.hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(120deg, #007bff, #00c6ff);
+    color: #ffffff;
+    padding: 80px 20px;
+    text-align: center;
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.hero h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
+}
+
+.hero p {
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+    max-width: 800px;
+}
+
+.hero .cta-button {
+    background-color: #ffffff;
+    color: #007bff;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.hero .cta-button:hover {
+    background-color: #cce7ff;
+    transform: scale(1.05);
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #f1f1f1;
+    color: #333;
+    margin-top: 50px;
+    border-top: 2px solid #007bff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+    .hero p {
+        font-size: 1.1rem;
+    }
+    .hero .cta-button {
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+}

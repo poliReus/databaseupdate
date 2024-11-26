@@ -1,0 +1,159 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Stile della barra di navigazione */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+}
+
+.navbar-left h1 {
+    color: #fff;
+    font-size: 1.5em;
+    margin-left: 10px;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    width: 50px;
+    height: 50px;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Stile per il contenitore del carosello */
+        .carousel-container {
+            width: 80%;
+            margin: 20px auto;
+            position: relative;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .carousel-slide {
+            display: none;
+        }
+        .carousel-slide.active {
+            display: block;
+        }
+        .carousel-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .carousel-nav button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+
+/* Stile per i pulsanti della navbar simile a testo cliccabile */
+.nav-button {
+    padding: 0 15px; /* Spaziatura orizzontale tra i link */
+    color: #ffffff; /* Colore del testo */
+    text-decoration: none; /* Rimuove la sottolineatura */
+    font-size: 1rem; /* Dimensione del testo */
+    transition: color 0.3s; /* Effetto al passaggio del mouse */
+}
+
+/* Spaziatura tra i link */
+.navbar-left {
+    display: flex;
+    gap: 20px; /* Distanza tra i link */
+    align-items: center;
+}
+
+/* Hover per evidenziare solo il testo */
+.nav-button:hover {
+    color: #cce7ff; /* Colore più chiaro al passaggio del mouse */
+}
+/* Stile per il cerchio del profilo */
+.profile-circle {
+    position: relative;
+}
+
+.profile-circle-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #333;
+    cursor: pointer;
+}
+
+
+.container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    animation: fadeIn 1s ease-in-out;
+}
+
+.profile-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.player-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid #333;
+    margin-bottom: 20px;
+    animation: bounceIn 1.5s;
+}
+
+.section {
+    margin-top: 30px;
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.section h3 {
+    color: #007bff;
+    margin-bottom: 10px;
+}
+
+#chart-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+/* Animazioni personalizzate */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    80% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); }
+}
