@@ -462,26 +462,30 @@
         <h2>Risultati</h2>
         <!-- Tabella con dati e pulsanti di eliminazione -->
         <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Elimina</th>
-                        {% for col in columns %}
-                            <th>{{ col }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody id="table-body">
-                    {% for row in table_data %}
+            {% if no_players %}
+                <p class="no-results">Non sono disponibili giocatori con queste caratteristiche nel database.</p>
+            {% else %}
+                <table>
+                    <thead>
                         <tr>
-                            <td><button class="delete-btn" onclick="confirmDelete({{ loop.index0 }})">X</button></td>
-                            {% for cell in row %}
-                                <td>{{ cell }}</td>
+                            <th>Elimina</th>
+                            {% for col in columns %}
+                                <th>{{ col }}</th>
                             {% endfor %}
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody id="table-body">
+                        {% for row in table_data %}
+                            <tr>
+                                <td><button class="delete-btn" onclick="confirmDelete({{ loop.index0 }})">X</button></td>
+                                {% for cell in row %}
+                                    <td>{{ cell }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
         </div>
 
         <!-- Overlay di conferma eliminazione -->

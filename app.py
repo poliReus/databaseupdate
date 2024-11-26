@@ -349,10 +349,17 @@ def visualizza():
         }
         for col, val in filters.items():
             if val:
+                havetocheckyet = True
                 if col == 'Anno Di Nascita':
                     df['Anno Di Nascita'] = pd.to_numeric(df['Anno Di Nascita'], errors='coerce')
                     val = int(val)
-                df = df[df[col] == val]
+                elif col in ['Nazione', 'Cognome', 'Nome', 'Firma']:
+                    # Confronto case-insensitive
+                    df[col] = df[col].astype(str)  # Assicura che la colonna sia stringa
+                    df = df[df[col].str.lower() == val.lower()]
+                    havetocheckyet = False
+                if havetocheckyet:
+                    df = df[df[col] == val]
 
         # Filtro per ruoli e attributi tattici specifici
         ruolo_1 = request.form.get('ruolo_1')
@@ -379,11 +386,21 @@ def visualizza():
         if attitudine_tattica_po_2:
             df = df[(df['Attitudine Tattica PO 1'] == attitudine_tattica_po_2) | (df['Attitudine Tattica PO 2'] == attitudine_tattica_po_2)]
 
+    # Rimuove l'ora dalle colonne di tipo data
+    for col in ['Data di Nascita', 'Aggiornato al']:
+        try:
+            df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%d/%m/%y')
+        except Exception:
+            pass  # Ignora se la conversione fallisce
+
     # Converti i dati della tabella in una lista di liste per il template
     table_data = df.values.tolist()
     columns = df.columns.tolist()
+    no_players= False
+    if len(df)==0:
+        no_players = True
 
-    return render_template('visualizza.html', table_data=table_data, columns=columns, players_count=players_count)
+    return render_template('visualizza.html', table_data=table_data, columns=columns, players_count=players_count,no_players=no_players)
 
 
 
