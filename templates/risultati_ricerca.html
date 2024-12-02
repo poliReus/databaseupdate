@@ -87,11 +87,48 @@
                     <td>{{ giocatore.get("Valutazione", "N/A") }}</td>
                     <td>{{ giocatore.get("Prospettiva", "N/A") }}</td>
                     <td>{{ giocatore["similarity_score"] | round(2) }}</td>
+                    <td>
+                        <button class="btn-feedback" data-query="{{ query }}" data-giocatore="{{ giocatore['Codice'] }}" data-feedback="positivo">✔️</button>
+                        <button class="btn-feedback" data-query="{{ query }}" data-giocatore="{{ giocatore['Codice'] }}" data-feedback="negativo">❌</button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         <a href="{{ url_for('cerca_giocatori') }}" class="btn-back">Torna alla Ricerca</a>
     </div>
+    <script>
+        document.querySelectorAll('.btn-feedback').forEach(button => {
+            button.addEventListener('click', function () {
+                const query = this.getAttribute('data-query');
+                const giocatore = this.getAttribute('data-giocatore');
+                const feedback = this.getAttribute('data-feedback'); // 'positivo' o 'negativo'
+
+                fetch('/feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        giocatore: giocatore,
+                        feedback: feedback
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Feedback registrato con successo!');
+                    } else {
+                        alert('Errore: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore durante il feedback:', error);
+                    alert('Si è verificato un errore.');
+                });
+            });
+        });
+    </script>
 </body>
 </html>

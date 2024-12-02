@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file, jsonify, flash
-from datetime import datetime
-import pandas as pd
 import os
-from io import BytesIO
+import pandas as pd
+import numpy as np
+import re
+import json
+from datetime import datetime
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -10,14 +12,13 @@ from werkzeug.utils import secure_filename
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, EqualTo
-import numpy as np
-from gensim.models import KeyedVectors
+from io import BytesIO
+from fuzzywuzzy import fuzz
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import TfidfVectorizer  # Nuovo
-import re  # Nuovo
-import nltk  # Nuovo
-from nltk.corpus import stopwords  # Nuovo
-from nltk.stem import WordNetLemmatizer  # Nuovo
+from nltk.corpus import stopwords
+from sentence_transformers import SentenceTransformer, util
+from gensim.models import KeyedVectors
+import joblib
 
 
 app = Flask(__name__)
@@ -25,12 +26,25 @@ app = Flask(__name__)
 # Percorso del file Excel
 file_path = './Cleaned_Database.xlsx'
 
+
 # Configurazione dell'app Flask per il database e il login
 app.config['SECRET_KEY'] = 'tuo_segreto_personalizzato'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'  # Puoi usare anche un altro DBMS
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+# Caricamento modello Word2Vec una sola volta
+model = KeyedVectors.load_word2vec_format("./combined_word2vec.vec", binary=False)
+
+# Dizionario sinonimi per normalizzare il testo
+synonyms = {
+    "sx": "sinistra",
+    "dx": "destra",
+    "mancino": "sinistra",
+    "destro": "destra",
+}
+
 
 # Modello User
 class User(UserMixin, db.Model):
@@ -193,9 +207,9 @@ def add_row():
         'Nazione': request.form['nazione'],
         'Cognome': request.form['cognome'],
         'Nome': request.form['nome'],
-        'Codice': request.form['cognome'] + request.form['nome'] + data_senza_zero.replace('-', ''),
+        'Codice': request.form['cognome'].replace(" ","") + request.form['nome'].replace(" ", "") + data_senza_zero.replace('-', ''),
         'Data di Nascita': request.form['data_di_nascita'],
-        'Anno Di Nascita': request.form['anno_di_nascita'],
+        'Anno Di Nascita': request.form['data_di_nascita'].split('-')[0],
         'Piede': request.form['piede'],
         'Squadra': request.form['squadra'],
         'Analisi': request.form['analisi'],
@@ -232,7 +246,7 @@ def add_row():
     df = pd.concat([df, new_row], ignore_index=True)
     df.to_excel(file_path, index=False)
 
-    return redirect(url_for('index'))
+    return redirect(url_for('aggiungi_giocatore'))
 
 @app.route('/download')
 def download_file():
@@ -306,8 +320,13 @@ def update_cell():
         mese_nascita = str(mese_nascita).lstrip('0')
         giorno_nascita = str(giorno_nascita).lstrip('0')
 
+
         # Genera il nuovo codice
         nuovo_codice = f"{cognome}{nome}{anno_nascita}{mese_nascita}{giorno_nascita}"
+
+        # Rimuove gli spazi dal codice
+        nuovo_codice = nuovo_codice.replace(' ', '_')
+        # Aggiorna il codice nel DataFrame
         df.at[row_index, 'Codice'] = nuovo_codice
 
     # Salva il file Excel aggiornato
@@ -393,6 +412,10 @@ def visualizza():
         except Exception:
             pass  # Ignora se la conversione fallisce
 
+    # Assicura che 'Anno Di Nascita' sia visualizzato come intero
+    if 'Anno Di Nascita' in df.columns:
+        df['Anno Di Nascita'] = pd.to_numeric(df['Anno Di Nascita'], errors='coerce').fillna(0).astype(int)
+
     # Converti i dati della tabella in una lista di liste per il template
     table_data = df.values.tolist()
     columns = df.columns.tolist()
@@ -424,26 +447,126 @@ def dati_giocatore(codice):
     return render_template('dati_giocatore.html', giocatore_data=giocatore_data, eta=eta, squadra_attuale=squadra_attuale)
 @app.route('/delete_row', methods=['POST'])
 def delete_row():
-
     if not current_user.is_authenticated:
         return jsonify(success=False, error="Devi essere loggato per eliminare una riga."), 401
 
     try:
         data = request.get_json()
-        row_index = data['rowIndex']
+        print(f"Dati JSON parsati: {data}")
+        # Accedi ai valori nidificati
+        row_index = data.get('rowIndex', {})
+        codice_giocatore = row_index.get('codice')
+        aggiornato_al = row_index.get('aggiornato_al')
+        # Log dei dati ricevuti
+        print(f"Codice ricevuto: {codice_giocatore}")
+        print(f"Aggiornato al ricevuto: {aggiornato_al}")
+
+        if not codice_giocatore or not aggiornato_al:
+            return jsonify({'success': False, 'error': 'Valori mancanti: codice o aggiornato_al'}), 400
+
         df = pd.read_excel(file_path)
 
+        # Converte `aggiornato_al` in formato datetime
+        aggiornato_al_dt = datetime.strptime(aggiornato_al, '%d/%m/%y')
+
+        # Converte la colonna 'Aggiornato al' in formato datetime per il confronto
+        df['Aggiornato al'] = pd.to_datetime(df['Aggiornato al'], errors='coerce')
+
+        # Filtra la riga corrispondente utilizzando oggetti datetime
+        row_to_delete = df[
+            (df['Codice'] == codice_giocatore) &
+            (df['Aggiornato al'] == aggiornato_al_dt)
+        ]
+
+        print(df[(df['Codice'] == codice_giocatore)]['Aggiornato al'])
+        print(aggiornato_al_dt)
+        if row_to_delete.empty:
+            return jsonify({'success': False, 'error': 'Giocatore non trovato'}), 404
+
+        # Ottieni l'indice della riga
+        row_index = row_to_delete.index[0]
+
+        # Controlla i permessi
         if df.at[row_index, 'Firma'] != current_user.username:
             return jsonify({'success': False, 'error': 'Permessi insufficienti per eliminare questa riga'}), 403
 
-
+        # Elimina la riga
         df.drop(index=row_index, inplace=True)
         df.reset_index(drop=True, inplace=True)
         df.to_excel(file_path, index=False)
+
         return jsonify({'success': True})
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({'success': False, 'error': str(e)}), 500
 
+def rank_results(query, results, model, clf, scaler):
+    """Ricalcola i punteggi e ordina i risultati."""
+    query_vector = text_to_vector(query, model)
+    ranked_results = []
+
+    for result in results:
+        giocatore_text = " ".join(f"{k}: {v}" for k, v in result.items() if isinstance(v, str))
+        giocatore_vector = text_to_vector(giocatore_text, model)
+
+        # Calcola similarità
+        cosine_sim = cosine_similarity([query_vector], [giocatore_vector])[0][0]
+        fuzzy_score = fuzz.token_set_ratio(query, giocatore_text) / 100
+
+        # Prepara le feature per il classificatore
+        features = scaler.transform([[cosine_sim, fuzzy_score]])
+
+        # Predice la probabilità di essere positivo
+        score = clf.predict_proba(features)[0][1]  # Probabilità del label '1'
+        ranked_results.append((result, score))
+
+    # Ordina i risultati in base al punteggio
+    return sorted(ranked_results, key=lambda x: x[1], reverse=True)
+
+
+# Preprocessamento avanzato
+def preprocess_text(text):
+    """Preprocessa il testo: normalizza, rimuove stopwords e caratteri speciali."""
+    stop_words = set(stopwords.words('italian'))
+    text = re.sub(r'\W+', ' ', text.lower())  # Rimuove caratteri speciali
+    text = " ".join(synonyms.get(word, word) for word in text.split())  # Normalizza sinonimi
+    tokens = [t for t in text.split() if t not in stop_words]  # Rimuove stopwords
+    return " ".join(tokens)
+
+# Funzione per calcolare la similarità
+def calculate_similarity(input_text, dataframe, model):
+    """Calcola la similarità tra il testo di input e i dati del database."""
+    input_text = preprocess_text(input_text)
+    input_vector = text_to_vector(input_text, model)
+    similarities = []
+
+    for _, row in dataframe.iterrows():
+        row_text = " ".join(str(value) for value in row.values if pd.notnull(value))
+        row_text = preprocess_text(row_text)
+        row_vector = text_to_vector(row_text, model)
+
+        # Calcola la similarità dei vettori
+        vector_similarity = cosine_similarity(
+            input_vector.reshape(1, -1), row_vector.reshape(1, -1)
+        )[0][0]
+
+        # Calcola fuzzy matching
+        fuzzy_score = fuzz.token_set_ratio(input_text, row_text) / 100
+
+        # Punteggio combinato
+        combined_score = 0.7 * vector_similarity + 0.3 * fuzzy_score
+        similarities.append(combined_score)
+
+    dataframe["similarity_score"] = similarities
+    return dataframe.sort_values(by="similarity_score", ascending=False).head(10)
+
+# Conversione testo in vettori
+def text_to_vector(text, model):
+    words = text.split()
+    word_vectors = [model[word] for word in words if word in model]
+    if word_vectors:
+        return np.mean(word_vectors, axis=0)
+    else:
+        return np.zeros(model.vector_size)
 
 @app.route('/cerca_giocatori', methods=['GET', 'POST'])
 @login_required
@@ -459,13 +582,48 @@ def cerca_giocatori():
                 flash("Il database è vuoto.", "danger")
                 return redirect(url_for("cerca_giocatori"))
 
-            # Carica il modello Word2Vec
-            model = KeyedVectors.load_word2vec_format("./combined_word2vec.vec", binary=False)
+            # Preprocessa il testo della query
+            descrizione = preprocess_text(descrizione)
 
-            # Calcola le similarità e ottieni i migliori 10 risultati
-            top_matches = calculate_similarity(descrizione, df, model)
+            # Genera l'embedding della query usando SentenceTransformers
+            sentence_transformer_model = SentenceTransformer('all-MiniLM-L6-v2')
+            query_embedding = sentence_transformer_model.encode(descrizione, convert_to_tensor=True)
 
-            # Trasforma i risultati per il template
+            # Prepara gli embedding per le righe del database
+            df['Testo Combinato'] = df.apply(lambda row: preprocess_text(" ".join(str(x) for x in row if pd.notnull(x))), axis=1)
+            df_embeddings = sentence_transformer_model.encode(df['Testo Combinato'].tolist(), convert_to_tensor=True)
+
+            # Calcola le similarità semantiche
+            semantic_similarities = util.cos_sim(query_embedding, df_embeddings)[0].cpu().numpy()
+
+            # Calcola similarità con Word2Vec e Fuzzy Matching
+            combined_scores = []
+            for i, row in df.iterrows():
+                row_text = df.at[i, 'Testo Combinato']
+                row_vector = text_to_vector(row_text, model)
+
+                # Similarità vettoriale (Word2Vec)
+                word2vec_similarity = cosine_similarity(
+                    text_to_vector(descrizione, model).reshape(1, -1),
+                    row_vector.reshape(1, -1)
+                )[0][0]
+
+                # Similarità fuzzy
+                fuzzy_score = fuzz.token_set_ratio(descrizione, row_text) / 100
+
+                # Punteggio finale combinato
+                combined_score = (
+                    0.6 * semantic_similarities[i] +
+                    0.3 * word2vec_similarity +
+                    0.1 * fuzzy_score
+                )
+                combined_scores.append(combined_score)
+
+            # Aggiungi i punteggi al DataFrame
+            df['similarity_score'] = combined_scores
+
+            # Ordina i risultati
+            top_matches = df.sort_values(by='similarity_score', ascending=False).head(10)
             giocatori_selezionati = top_matches.to_dict(orient='records')
 
             return render_template("risultati_ricerca.html", giocatori=giocatori_selezionati, query=descrizione)
@@ -476,31 +634,66 @@ def cerca_giocatori():
 
     return render_template("cerca_giocatori.html")
 
-def calculate_similarity(input_text, dataframe, model):
-    input_vector = text_to_vector(input_text, model)
-    input_words = input_text.split()
-    similarities = []
 
-    for _, row in dataframe.iterrows():
-        row_text = " ".join(str(value) for value in row.values if pd.notnull(value))
-        row_words = row_text.split()
-        row_vector = text_to_vector(row_text, model)
-        vector_similarity = cosine_similarity(
-            input_vector.reshape(1, -1), row_vector.reshape(1, -1)
-        )[0][0]
-        exact_match_score = sum(1 for word in input_words if word in row_words)
-        combined_score = 0.9 * vector_similarity + 0.1 * exact_match_score
-        similarities.append(combined_score)
+@app.route('/feedback', methods=['POST'])
+@login_required
+def feedback():
+    data = request.json
+    query = data.get('query')
+    giocatore_codice = data.get('giocatore')
+    feedback_label = data.get('feedback')  # 'positivo' o 'negativo'
 
-    dataframe["similarity_score"] = similarities
-    return dataframe.sort_values(by="similarity_score", ascending=False).head(10)
+    try:
+        # Carica il database
+        df = pd.read_excel(file_path)
 
-def text_to_vector(text, model):
-    words = text.split()
-    word_vectors = [model[word] for word in words if word in model]
-    if word_vectors:
-        return np.mean(word_vectors, axis=0)
-    else:
-        return np.zeros(model.vector_size)
+        # Trova la riga del giocatore corrispondente
+        giocatore_data = df[df['Codice'] == giocatore_codice].copy()
+        if giocatore_data.empty:
+            return jsonify(success=False, error="Giocatore non trovato"), 404
+
+        # Converti le colonne in datetime se esistono e non sono già in quel formato
+        date_columns = ['Data di Nascita', 'Aggiornato al']
+        for col in date_columns:
+            if col in giocatore_data.columns:
+                giocatore_data[col] = pd.to_datetime(giocatore_data[col], errors='coerce')
+                giocatore_data[col] = giocatore_data[col].dt.strftime('%Y-%m-%d')  # Converte in stringa formattata
+
+        # Estrai i dati del giocatore come dizionario
+        giocatore_info = giocatore_data.iloc[0].to_dict()
+
+        # Struttura del feedback
+        feedback_entry = {
+            'user': current_user.username,
+            'query': query,
+            'giocatore': giocatore_info,
+            'label': 1 if feedback_label == 'positivo' else 0
+        }
+
+        # Percorso del file JSON
+        feedback_file = 'feedback.json'
+
+        # Leggi il file JSON se esiste, altrimenti inizializzalo come lista vuota
+        feedback_data = []
+        if os.path.exists(feedback_file):
+            try:
+                with open(feedback_file, 'r') as f:
+                    feedback_data = json.load(f)
+            except json.JSONDecodeError:
+                feedback_data = []  # Se il file è corrotto, resetta i dati
+
+        # Aggiungi il nuovo feedback
+        feedback_data.append(feedback_entry)
+
+        # Salva il feedback aggiornato
+        with open(feedback_file, 'w') as f:
+            json.dump(feedback_data, f, ensure_ascii=False, indent=4)
+
+        return jsonify(success=True)
+
+    except Exception as e:
+        return jsonify(success=False, error=str(e)), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True)
