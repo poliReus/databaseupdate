@@ -599,7 +599,14 @@
         let rowIndexToDelete = null;
 
         function confirmDelete(index) {
-            rowIndexToDelete = index;
+            const row = document.querySelector(`#table-body tr:nth-child(${index + 1})`);
+
+            const codice = row.children[7].innerText; // Colonna 8: Codice
+            const aggiornato_al = row.children[14].innerText; // Colonna 15: Aggiornato al
+
+
+
+            rowIndexToDelete = { codice, aggiornato_al};
             document.getElementById('delete-overlay').classList.remove('hidden');
         }
 
