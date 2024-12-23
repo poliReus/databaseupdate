@@ -35,7 +35,7 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 # Caricamento modello Word2Vec una sola volta
-model = KeyedVectors.load_word2vec_format("./combined_word2vec.vec", binary=False)
+model = KeyedVectors.load_word2vec_format("./updated_word2vec_with_fine_tuning.vec", binary=False)
 
 # Dizionario sinonimi per normalizzare il testo
 synonyms = {
